@@ -1,13 +1,27 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Building, Calculator, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  LinearProgress,
+  Chip,
+  Container,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import { 
+  Building, 
+  Calculator, 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle 
+} from 'lucide-react';
 
 export default function PropertySimulation() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [propertyValue, setPropertyValue] = useState('850000');
   const [purchasePrice, setPurchasePrice] = useState('750000');
   const [loanAmount, setLoanAmount] = useState('600000');
@@ -18,7 +32,7 @@ export default function PropertySimulation() {
   // Calculations
   const equity = parseFloat(propertyValue) - parseFloat(loanAmount);
   const equityRatio = (equity / parseFloat(propertyValue)) * 100;
-  const monthlyRepayment = (parseFloat(loanAmount) * (parseFloat(interestRate) / 100 / 12)) / (1 - Math.pow(1 + (parseFloat(interestRate) / 100 / 12), -300)); // 25 year loan
+  const monthlyRepayment = (parseFloat(loanAmount) * (parseFloat(interestRate) / 100 / 12)) / (1 - Math.pow(1 + (parseFloat(interestRate) / 100 / 12), -300));
   const monthlyCashFlow = parseFloat(rentalIncome) - parseFloat(expenses) - monthlyRepayment;
   const annualYield = (parseFloat(rentalIncome) * 12 / parseFloat(propertyValue)) * 100;
   const roi = (monthlyCashFlow * 12 / equity) * 100;
@@ -35,245 +49,325 @@ export default function PropertySimulation() {
   const healthScore = getHealthScore();
 
   const getHealthStatus = (score: number) => {
-    if (score >= 75) return { status: 'Excellent', color: 'text-green-600', icon: CheckCircle };
-    if (score >= 50) return { status: 'Good', color: 'text-blue-600', icon: TrendingUp };
-    if (score >= 25) return { status: 'Fair', color: 'text-yellow-600', icon: AlertTriangle };
-    return { status: 'Poor', color: 'text-red-600', icon: AlertTriangle };
+    if (score >= 75) return { status: 'Excellent', color: 'success', icon: CheckCircle };
+    if (score >= 50) return { status: 'Good', color: 'primary', icon: TrendingUp };
+    if (score >= 25) return { status: 'Fair', color: 'warning', icon: AlertTriangle };
+    return { status: 'Poor', color: 'error', icon: AlertTriangle };
   };
 
   const healthStatus = getHealthStatus(healthScore);
   const HealthIcon = healthStatus.icon;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Property Investment Health Check</h1>
-        <p className="text-muted-foreground">
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 700 }}>
+          Property Investment Health Check
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
           Simulate property investments and evaluate financial health with detailed analysis
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', lg: 'row' },
+        gap: 3 
+      }}>
         {/* Input Form */}
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Property Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Current Property Value ($)</Label>
-                <Input
+        <Box sx={{ flex: { lg: '0 0 33%' } }}>
+          <Card sx={{ height: 'fit-content' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                <Building size={20} />
+                <Typography variant="h6" component="h2">
+                  Property Details
+                </Typography>
+              </Box>
+              
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <TextField
+                  label="Current Property Value ($)"
                   type="number"
                   value={propertyValue}
                   onChange={(e) => setPropertyValue(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label>Purchase Price ($)</Label>
-                <Input
+                <TextField
+                  label="Purchase Price ($)"
                   type="number"
                   value={purchasePrice}
                   onChange={(e) => setPurchasePrice(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label>Loan Amount ($)</Label>
-                <Input
+                <TextField
+                  label="Loan Amount ($)"
                   type="number"
                   value={loanAmount}
                   onChange={(e) => setLoanAmount(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label>Monthly Rental Income ($)</Label>
-                <Input
+                <TextField
+                  label="Monthly Rental Income ($)"
                   type="number"
                   value={rentalIncome}
                   onChange={(e) => setRentalIncome(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label>Monthly Expenses ($)</Label>
-                <Input
+                <TextField
+                  label="Monthly Expenses ($)"
                   type="number"
                   value={expenses}
                   onChange={(e) => setExpenses(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
 
-              <div className="space-y-2">
-                <Label>Interest Rate (%)</Label>
-                <Input
+                <TextField
+                  label="Interest Rate (%)"
                   type="number"
-                  step="0.1"
+                  inputProps={{ step: '0.1' }}
                   value={interestRate}
                   onChange={(e) => setInterestRate(e.target.value)}
+                  fullWidth
+                  variant="outlined"
                 />
-              </div>
+              </Box>
             </CardContent>
           </Card>
-        </div>
+        </Box>
 
         {/* Results */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Health Score */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Calculator className="h-5 w-5" />
-                  Investment Health Score
-                </span>
-                <div className="flex items-center gap-2">
-                  <HealthIcon className={`h-5 w-5 ${healthStatus.color}`} />
-                  <Badge variant="outline" className={healthStatus.color}>
-                    {healthStatus.status}
-                  </Badge>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold mb-2">{healthScore}/100</div>
-                  <Progress value={healthScore} className="h-3" />
-                </div>
-                <div className="text-sm text-muted-foreground text-center">
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Health Score */}
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  mb: 3
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Calculator size={20} />
+                    <Typography variant="h6">Investment Health Score</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <HealthIcon size={20} />
+                    <Chip 
+                      label={healthStatus.status} 
+                      color={healthStatus.color as any}
+                      variant="outlined"
+                    />
+                  </Box>
+                </Box>
+                
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                  <Typography variant="h2" component="div" sx={{ fontWeight: 700, mb: 2 }}>
+                    {healthScore}/100
+                  </Typography>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={healthScore} 
+                    sx={{ height: 12, borderRadius: 6 }}
+                  />
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
                   Based on equity ratio, cash flow, yield, and ROI metrics
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Key Metrics */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Equity Position</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">${equity.toLocaleString()}</div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-sm text-muted-foreground">Equity Ratio</span>
-                  <span className={`text-sm font-medium ${equityRatio >= 20 ? 'text-green-600' : 'text-red-600'}`}>
-                    {equityRatio.toFixed(1)}%
-                  </span>
-                </div>
-                <Progress value={equityRatio} className="h-2 mt-2" />
+                </Typography>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Monthly Cash Flow</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${monthlyCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {monthlyCashFlow >= 0 ? '+' : ''}${monthlyCashFlow.toFixed(0)}
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  Rental: ${rentalIncome} | Repayment: ${monthlyRepayment.toFixed(0)}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Key Metrics */}
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+              gap: 2
+            }}>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Equity Position
+                  </Typography>
+                  <Typography variant="h4" component="div" sx={{ fontWeight: 700, mb: 2 }}>
+                    ${equity.toLocaleString()}
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Equity Ratio
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 600,
+                        color: equityRatio >= 20 ? 'success.main' : 'error.main'
+                      }}
+                    >
+                      {equityRatio.toFixed(1)}%
+                    </Typography>
+                  </Box>
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={Math.min(equityRatio, 100)} 
+                    sx={{ height: 8, borderRadius: 4 }}
+                  />
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Rental Yield</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${annualYield >= 4 ? 'text-green-600' : 'text-yellow-600'}`}>
-                  {annualYield.toFixed(2)}%
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  Annual rental income vs property value
-                </div>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Monthly Cash Flow
+                  </Typography>
+                  <Typography 
+                    variant="h4" 
+                    component="div" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      mb: 2,
+                      color: monthlyCashFlow >= 0 ? 'success.main' : 'error.main'
+                    }}
+                  >
+                    {monthlyCashFlow >= 0 ? '+' : ''}${monthlyCashFlow.toFixed(0)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Rental: ${rentalIncome} | Repayment: ${monthlyRepayment.toFixed(0)}
+                  </Typography>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Return on Investment</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${roi >= 8 ? 'text-green-600' : roi >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {roi.toFixed(2)}%
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  Annual cash flow vs equity invested
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Rental Yield
+                  </Typography>
+                  <Typography 
+                    variant="h4" 
+                    component="div" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      mb: 2,
+                      color: annualYield >= 4 ? 'success.main' : 'warning.main'
+                    }}
+                  >
+                    {annualYield.toFixed(2)}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Annual rental income vs property value
+                  </Typography>
+                </CardContent>
+              </Card>
 
-          {/* Analysis & Recommendations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Investment Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Key Insights:</h4>
-                  <ul className="space-y-1 text-sm">
+              <Card>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                    Return on Investment
+                  </Typography>
+                  <Typography 
+                    variant="h4" 
+                    component="div" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      mb: 2,
+                      color: roi >= 8 ? 'success.main' : roi >= 0 ? 'warning.main' : 'error.main'
+                    }}
+                  >
+                    {roi.toFixed(2)}%
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Annual cash flow vs equity invested
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+
+            {/* Analysis & Recommendations */}
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  Investment Analysis
+                </Typography>
+                
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                    Key Insights:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                     {equityRatio >= 20 ? (
-                      <li className="flex items-center gap-2 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        Strong equity position ({equityRatio.toFixed(1)}% equity ratio)
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
+                        <CheckCircle size={16} />
+                        <Typography variant="body2">
+                          Strong equity position ({equityRatio.toFixed(1)}% equity ratio)
+                        </Typography>
+                      </Box>
                     ) : (
-                      <li className="flex items-center gap-2 text-red-600">
-                        <AlertTriangle className="h-4 w-4" />
-                        Low equity ratio - consider reducing loan amount
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
+                        <AlertTriangle size={16} />
+                        <Typography variant="body2">
+                          Low equity ratio - consider reducing loan amount
+                        </Typography>
+                      </Box>
                     )}
                     
                     {monthlyCashFlow >= 0 ? (
-                      <li className="flex items-center gap-2 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        Positive cash flow of ${monthlyCashFlow.toFixed(0)} per month
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
+                        <CheckCircle size={16} />
+                        <Typography variant="body2">
+                          Positive cash flow of ${monthlyCashFlow.toFixed(0)} per month
+                        </Typography>
+                      </Box>
                     ) : (
-                      <li className="flex items-center gap-2 text-red-600">
-                        <AlertTriangle className="h-4 w-4" />
-                        Negative cash flow - property costs exceed rental income
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'error.main' }}>
+                        <AlertTriangle size={16} />
+                        <Typography variant="body2">
+                          Negative cash flow - property costs exceed rental income
+                        </Typography>
+                      </Box>
                     )}
                     
                     {annualYield >= 4 ? (
-                      <li className="flex items-center gap-2 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        Good rental yield of {annualYield.toFixed(2)}%
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'success.main' }}>
+                        <CheckCircle size={16} />
+                        <Typography variant="body2">
+                          Good rental yield of {annualYield.toFixed(2)}%
+                        </Typography>
+                      </Box>
                     ) : (
-                      <li className="flex items-center gap-2 text-yellow-600">
-                        <AlertTriangle className="h-4 w-4" />
-                        Below average rental yield - consider higher rent or lower purchase price
-                      </li>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'warning.main' }}>
+                        <AlertTriangle size={16} />
+                        <Typography variant="body2">
+                          Below average rental yield - consider higher rent or lower purchase price
+                        </Typography>
+                      </Box>
                     )}
-                  </ul>
-                </div>
+                  </Box>
+                </Box>
 
-                <div>
-                  <h4 className="font-medium mb-2">Capital Growth Impact:</h4>
-                  <p className="text-sm text-muted-foreground">
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                    Capital Growth Impact:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
                     Current capital gain: ${(parseFloat(propertyValue) - parseFloat(purchasePrice)).toLocaleString()} 
                     ({(((parseFloat(propertyValue) - parseFloat(purchasePrice)) / parseFloat(purchasePrice)) * 100).toFixed(1)}%)
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+                  </Typography>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </Box>
+      </Box>
+    </Container>
   );
 }

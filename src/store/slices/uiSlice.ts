@@ -14,7 +14,7 @@ interface UiState {
 }
 
 const initialState: UiState = {
-  darkMode: true,
+  darkMode: false,
   sidebarOpen: true,
   selectedTab: 'dashboard',
   loading: false,
