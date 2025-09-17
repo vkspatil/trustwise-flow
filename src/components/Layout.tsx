@@ -1,6 +1,41 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useLocation, Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  AppBar,
+  Toolbar,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Typography,
+  Box,
+  Badge,
+  Chip,
+  Avatar,
+  useTheme,
+  useMediaQuery
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Dashboard as DashboardIcon,
+  TrendingUp,
+  TrendingDown,
+  SwapHoriz,
+  People,
+  Business,
+  CheckCircle,
+  AccountBalance,
+  Description,
+  MonetizationOn,
+  Brightness4,
+  Brightness7
+} from '@mui/icons-material';
+import { RootState } from '../store';
+import { toggleDarkMode, toggleSidebar } from '../store/slices/uiSlice';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { 
