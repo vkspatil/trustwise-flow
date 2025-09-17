@@ -1,164 +1,193 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { mockUnitClasses, mockInvestors, mockPurchaseRequests, mockBankTransactions } from '@/lib/mockData';
-import { TrendingUp, DollarSign, Users, FileCheck, AlertCircle } from 'lucide-react';
+import React from 'react';
+import { 
+  Card, 
+  CardContent, 
+  Typography, 
+  Box, 
+  Chip,
+  LinearProgress,
+  useTheme
+} from '@mui/material';
+import { 
+  TrendingUp, 
+  AccountBalance, 
+  People,
+  Warning
+} from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
-export default function Dashboard() {
-  const totalNav = mockUnitClasses.reduce((sum, unit) => sum + unit.nav, 0);
-  const totalInvestors = mockInvestors.length;
-  const pendingRequests = mockPurchaseRequests.filter(req => req.status === 'pending').length;
-  const monthlyIncome = mockBankTransactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+const Dashboard: React.FC = () => {
+  const theme = useTheme();
+  const { unitClasses, totalNav, purchaseRequests } = useSelector((state: RootState) => state.unitTrust);
+  const { investors } = useSelector((state: RootState) => state.investors);
+  const { totalIncome } = useSelector((state: RootState) => state.transactions);
+
+  const pendingRequests = purchaseRequests.filter(r => r.status === 'pending').length;
+
+  const metrics = [
+    {
+      title: 'Total NAV',
+      value: `$${(totalNav / 1000000).toFixed(2)}M`,
+      change: '+8.2%',
+      positive: true,
+      icon: AccountBalance
+    },
+    {
+      title: 'Active Investors',
+      value: investors.length.toString(),
+      change: '+12',
+      positive: true,
+      icon: People
+    },
+    {
+      title: 'Monthly Income',
+      value: `$${(totalIncome / 1000).toFixed(0)}K`,
+      change: '+5.7%',
+      positive: true,
+      icon: TrendingUp
+    },
+    {
+      title: 'Pending Approvals',
+      value: pendingRequests.toString(),
+      change: 'Requires attention',
+      positive: false,
+      icon: Warning
+    }
+  ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Unit Trust Management System Overview
-        </p>
-      </div>
+    <Box>
+      <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+        Trading Dashboard
+      </Typography>
+      
+      {/* Metrics Cards */}
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, 
+        gap: 3, 
+        mb: 4 
+      }}>
+        {metrics.map((metric, index) => {
+          const Icon = metric.icon;
+          return (
+            <Card key={index} sx={{ 
+              background: theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, #111827 0%, #1f2937 100%)'
+                : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              border: `1px solid ${theme.palette.divider}`,
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 3,
+                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
+              }
+            }}>
+              <CardContent sx={{ pb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{
+                    p: 1,
+                    borderRadius: 2,
+                    backgroundColor: theme.palette.primary.main + '20',
+                    mr: 2
+                  }}>
+                    <Icon sx={{ color: theme.palette.primary.main, fontSize: 24 }} />
+                  </Box>
+                  <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                    {metric.value}
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                    {metric.title}
+                  </Typography>
+                  <Chip
+                    label={metric.change}
+                    size="small"
+                    sx={{
+                      backgroundColor: metric.positive ? '#10b981' + '20' : '#ef4444' + '20',
+                      color: metric.positive ? '#10b981' : '#ef4444',
+                      fontWeight: 600,
+                      fontSize: '0.75rem'
+                    }}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Box>
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total NAV</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${totalNav.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              +2.1% from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Investors</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalInvestors}</div>
-            <p className="text-xs text-muted-foreground">
-              +1 new this month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingRequests}</div>
-            <p className="text-xs text-muted-foreground">
-              Requires admin attention
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${monthlyIncome.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              +5.4% from last month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Unit Classes Overview */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Unit Classes Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {mockUnitClasses.map((unitClass) => {
+      {/* Unit Classes Performance */}
+      <Card>
+        <CardContent>
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+            Unit Classes Performance
+          </Typography>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, 
+            gap: 2 
+          }}>
+            {unitClasses.map((unitClass, index) => {
               const equityRatio = ((unitClass.assets - unitClass.liabilities) / unitClass.assets) * 100;
-              
               return (
-                <div key={unitClass.id} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{unitClass.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        ${unitClass.unitPrice.toFixed(2)} per unit
-                      </p>
-                    </div>
-                    <Badge variant="secondary">
-                      {unitClass.totalUnits.toLocaleString()} units
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Equity Ratio</span>
-                      <span>{equityRatio.toFixed(1)}%</span>
-                    </div>
-                    <Progress value={equityRatio} className="h-2" />
-                  </div>
-                </div>
+                <Box key={unitClass.id} sx={{ 
+                  p: 2, 
+                  border: `1px solid ${theme.palette.divider}`, 
+                  borderRadius: 2 
+                }}>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {unitClass.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      ${unitClass.unitPrice.toFixed(4)} per unit
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="body2">Equity Ratio</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                        {equityRatio.toFixed(1)}%
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={equityRatio}
+                      sx={{
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: theme.palette.grey[200],
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 4,
+                          background: `hsl(${index * 120}, 70%, 50%)`
+                        }
+                      }}
+                    />
+                  </Box>
+
+                  <Chip
+                    label={`${unitClass.totalUnits.toLocaleString()} units`}
+                    size="small"
+                    variant="outlined"
+                  />
+                </Box>
               );
             })}
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockPurchaseRequests.slice(0, 3).map((request) => (
-                <div key={request.id} className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{request.investorName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {request.unitClassName} - ${request.requestedAmount.toLocaleString()}
-                    </p>
-                  </div>
-                  <Badge 
-                    variant={
-                      request.status === 'approved' ? 'default' :
-                      request.status === 'pending' ? 'secondary' : 'destructive'
-                    }
-                  >
-                    {request.status}
-                  </Badge>
-                </div>
-              ))}
-              
-              {mockBankTransactions.slice(0, 2).map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">{transaction.description}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(transaction.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Badge variant={transaction.type === 'income' ? 'default' : 'secondary'}>
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toLocaleString()}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
-}
+};
+
+export default Dashboard;
