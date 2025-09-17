@@ -64,7 +64,7 @@ const navigationItems = [
   { path: '/investors', label: 'Investors', icon: People, color: '#6366f1' },
 ];
 
-export default function Layout({ children }: LayoutProps) {
+const Layout = ({ children }: LayoutProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
@@ -100,7 +100,6 @@ export default function Layout({ children }: LayoutProps) {
 
   const drawer = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Logo Section */}
       <Box sx={{ 
         p: 3, 
         borderBottom: `1px solid ${theme.palette.divider}`,
@@ -140,7 +139,6 @@ export default function Layout({ children }: LayoutProps) {
         </Box>
       </Box>
 
-      {/* Market Overview */}
       <Box sx={{ px: 2, py: 2 }}>
         <Typography variant="caption" sx={{ 
           fontWeight: 600, 
@@ -154,7 +152,7 @@ export default function Layout({ children }: LayoutProps) {
         <Box sx={{ mt: 1, px: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
             <Typography variant="body2">NAV Total</Typography>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.trading.bull }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#10b981' }}>
               $2.45M
             </Typography>
           </Box>
@@ -164,8 +162,8 @@ export default function Layout({ children }: LayoutProps) {
               label="+2.34%" 
               size="small" 
               sx={{ 
-                backgroundColor: theme.palette.trading.bull + '20',
-                color: theme.palette.trading.bull,
+                backgroundColor: '#10b981' + '20',
+                color: '#10b981',
                 fontSize: '0.7rem',
                 height: 20,
                 fontWeight: 600
@@ -177,7 +175,6 @@ export default function Layout({ children }: LayoutProps) {
 
       <Divider />
 
-      {/* Navigation */}
       <Box sx={{ flexGrow: 1, px: 1, py: 1 }}>
         <List sx={{ py: 0 }}>
           {navigationItems.map((item) => {
@@ -264,7 +261,6 @@ export default function Layout({ children }: LayoutProps) {
 
       <Divider />
 
-      {/* User Section */}
       <Box sx={{ p: 2 }}>
         <Box sx={{ 
           display: 'flex', 
@@ -305,7 +301,6 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* App Bar */}
       <AppBar
         position="fixed"
         elevation={0}
@@ -330,7 +325,6 @@ export default function Layout({ children }: LayoutProps) {
             <MenuIcon />
           </IconButton>
 
-          {/* Current Page Title */}
           <Typography variant="h6" noWrap component="div" sx={{ 
             flexGrow: 1, 
             fontWeight: 600,
@@ -339,21 +333,17 @@ export default function Layout({ children }: LayoutProps) {
             {navigationItems.find(item => item.path === location.pathname)?.label || 'TrustWise'}
           </Typography>
 
-          {/* Top Bar Actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* Notifications */}
             <IconButton sx={{ color: 'text.primary' }}>
               <Badge badgeContent={notifications.length} color="error">
                 <Notifications />
               </Badge>
             </IconButton>
 
-            {/* Theme Toggle */}
             <IconButton onClick={handleThemeToggle} sx={{ color: 'text.primary' }}>
               {darkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
 
-            {/* User Menu */}
             <IconButton
               onClick={handleProfileMenu}
               sx={{ color: 'text.primary' }}
@@ -378,12 +368,10 @@ export default function Layout({ children }: LayoutProps) {
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar */}
       <Box
         component="nav"
         sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
       >
-        {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -397,7 +385,6 @@ export default function Layout({ children }: LayoutProps) {
           {drawer}
         </Drawer>
 
-        {/* Desktop drawer */}
         <Drawer
           variant="persistent"
           open={sidebarOpen}
@@ -414,7 +401,6 @@ export default function Layout({ children }: LayoutProps) {
         </Drawer>
       </Box>
 
-      {/* Main Content */}
       <Box
         component="main"
         sx={{
@@ -426,11 +412,13 @@ export default function Layout({ children }: LayoutProps) {
           backgroundColor: theme.palette.background.default
         }}
       >
-        <Toolbar /> {/* Spacer for fixed app bar */}
+        <Toolbar />
         <Box sx={{ p: 3 }}>
           {children}
         </Box>
       </Box>
     </Box>
   );
-}
+};
+
+export default Layout;
