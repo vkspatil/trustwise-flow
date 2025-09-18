@@ -1,24 +1,17 @@
 import React from 'react';
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
-  Chip,
-  LinearProgress,
-  useTheme
-} from '@mui/material';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   TrendingUp, 
-  AccountBalance, 
-  People,
-  Warning
-} from '@mui/icons-material';
+  Landmark, 
+  Users,
+  AlertTriangle
+} from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 
 const Dashboard: React.FC = () => {
-  const theme = useTheme();
   const { unitClasses, totalNav, purchaseRequests } = useSelector((state: RootState) => state.unitTrust);
   const { investors } = useSelector((state: RootState) => state.investors);
   const { totalIncome } = useSelector((state: RootState) => state.transactions);
@@ -31,14 +24,14 @@ const Dashboard: React.FC = () => {
       value: `$${(totalNav / 1000000).toFixed(2)}M`,
       change: '+8.2%',
       positive: true,
-      icon: AccountBalance
+      icon: Landmark
     },
     {
       title: 'Active Investors',
       value: investors.length.toString(),
       change: '+12',
       positive: true,
-      icon: People
+      icon: Users
     },
     {
       title: 'Monthly Income',
@@ -52,141 +45,89 @@ const Dashboard: React.FC = () => {
       value: pendingRequests.toString(),
       change: 'Requires attention',
       positive: false,
-      icon: Warning
+      icon: AlertTriangle
     }
   ];
 
   return (
-    <Box>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
-        Trading Dashboard
-      </Typography>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Trading Dashboard</h1>
+        <p className="text-muted-foreground">Monitor your unit trust performance and key metrics</p>
+      </div>
       
       {/* Metrics Cards */}
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, 
-        gap: 3, 
-        mb: 4 
-      }}>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {metrics.map((metric, index) => {
           const Icon = metric.icon;
           return (
-            <Card key={index} sx={{ 
-              background: theme.palette.mode === 'dark' 
-                ? 'linear-gradient(135deg, #111827 0%, #1f2937 100%)'
-                : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-              border: `1px solid ${theme.palette.divider}`,
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 3,
-                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`
-              }
-            }}>
-              <CardContent sx={{ pb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{
-                    p: 1,
-                    borderRadius: 2,
-                    backgroundColor: theme.palette.primary.main + '20',
-                    mr: 2
-                  }}>
-                    <Icon sx={{ color: theme.palette.primary.main, fontSize: 24 }} />
-                  </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
-                    {metric.value}
-                  </Typography>
-                </Box>
-                
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-                    {metric.title}
-                  </Typography>
-                  <Chip
-                    label={metric.change}
-                    size="small"
-                    sx={{
-                      backgroundColor: metric.positive ? '#10b981' + '20' : '#ef4444' + '20',
-                      color: metric.positive ? '#10b981' : '#ef4444',
-                      fontWeight: 600,
-                      fontSize: '0.75rem'
-                    }}
-                  />
-                </Box>
+            <Card key={index} className="relative overflow-hidden border-t-4 border-t-primary">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {metric.title}
+                    </p>
+                    <p className="text-2xl font-bold font-mono">
+                      {metric.value}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-lg">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <Badge 
+                    variant={metric.positive ? "default" : "destructive"}
+                    className={metric.positive ? "bg-success/20 text-success" : ""}
+                  >
+                    {metric.change}
+                  </Badge>
+                </div>
               </CardContent>
             </Card>
           );
         })}
-      </Box>
+      </div>
 
       {/* Unit Classes Performance */}
       <Card>
+        <CardHeader>
+          <CardTitle>Unit Classes Performance</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
-            Unit Classes Performance
-          </Typography>
-          <Box sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, 
-            gap: 2 
-          }}>
+          <div className="grid gap-4 md:grid-cols-3">
             {unitClasses.map((unitClass, index) => {
               const equityRatio = ((unitClass.assets - unitClass.liabilities) / unitClass.assets) * 100;
               return (
-                <Box key={unitClass.id} sx={{ 
-                  p: 2, 
-                  border: `1px solid ${theme.palette.divider}`, 
-                  borderRadius: 2 
-                }}>
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {unitClass.name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                <div key={unitClass.id} className="rounded-lg border p-4">
+                  <div className="mb-4">
+                    <h4 className="font-semibold">{unitClass.name}</h4>
+                    <p className="text-sm text-muted-foreground">
                       ${unitClass.unitPrice.toFixed(4)} per unit
-                    </Typography>
-                  </Box>
+                    </p>
+                  </div>
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                      <Typography variant="body2">Equity Ratio</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                  <div className="mb-4">
+                    <div className="mb-2 flex justify-between">
+                      <span className="text-sm">Equity Ratio</span>
+                      <span className="text-sm font-semibold font-mono">
                         {equityRatio.toFixed(1)}%
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={equityRatio}
-                      sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: theme.palette.grey[200],
-                        '& .MuiLinearProgress-bar': {
-                          borderRadius: 4,
-                          background: `hsl(${index * 120}, 70%, 50%)`
-                        }
-                      }}
-                    />
-                  </Box>
+                      </span>
+                    </div>
+                    <Progress value={equityRatio} className="h-2" />
+                  </div>
 
-                  <Chip
-                    label={`${unitClass.totalUnits.toLocaleString()} units`}
-                    size="small"
-                    variant="outlined"
-                  />
-                </Box>
+                  <Badge variant="outline">
+                    {unitClass.totalUnits.toLocaleString()} units
+                  </Badge>
+                </div>
               );
             })}
-          </Box>
+          </div>
         </CardContent>
       </Card>
-    </Box>
+    </div>
   );
 };
 

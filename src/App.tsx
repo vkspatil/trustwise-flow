@@ -1,11 +1,7 @@
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { Snackbar, Alert } from '@mui/material';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useSelector, useDispatch } from 'react-redux';
-import { createAppTheme } from './theme';
+import { useSelector } from 'react-redux';
 import { RootState } from './store';
-import { removeNotification } from './store/slices/uiSlice';
+import { Toaster } from "@/components/ui/toaster";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import UnitPurchase from "./pages/UnitPurchase";
@@ -20,18 +16,10 @@ import UnitTransfer from "./pages/UnitTransfer";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
-  const dispatch = useDispatch();
   const darkMode = useSelector((state: RootState) => state.ui.darkMode);
-  const notifications = useSelector((state: RootState) => state.ui.notifications);
-  const theme = createAppTheme(darkMode ? 'dark' : 'light');
-
-  const handleCloseNotification = (id: string) => {
-    dispatch(removeNotification(id));
-  };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <div className={darkMode ? 'dark' : ''}>
       <BrowserRouter>
         <Layout>
           <Routes>
@@ -48,34 +36,9 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
-        
-        {/* Global Notifications */}
-        {notifications.map((notification, index) => (
-          <Snackbar
-            key={notification.id}
-            open={true}
-            autoHideDuration={5000}
-            onClose={() => handleCloseNotification(notification.id)}
-            anchorOrigin={{ 
-              vertical: 'top', 
-              horizontal: 'right' 
-            }}
-            style={{ 
-              top: 80 + (index * 60) // Stack notifications
-            }}
-          >
-            <Alert
-              onClose={() => handleCloseNotification(notification.id)}
-              severity={notification.type}
-              variant="filled"
-              sx={{ minWidth: 300 }}
-            >
-              {notification.message}
-            </Alert>
-          </Snackbar>
-        ))}
+        <Toaster />
       </BrowserRouter>
-    </ThemeProvider>
+    </div>
   );
 };
 

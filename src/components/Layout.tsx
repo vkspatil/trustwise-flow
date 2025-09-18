@@ -1,47 +1,41 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetTrigger 
+} from "@/components/ui/sheet";
 import {
-  AppBar,
-  Toolbar,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Typography,
-  Box,
-  Badge,
-  Chip,
-  Avatar,
-  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Menu,
-  MenuItem,
-  Divider,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
+  LayoutDashboard,
   TrendingUp,
   TrendingDown,
-  SwapHoriz,
-  People,
-  Business,
+  ArrowLeftRight,
+  Users,
+  Building2,
   CheckCircle,
-  AccountBalance,
-  Description,
-  MonetizationOn,
-  Brightness4,
-  Brightness7,
+  Landmark,
+  FileText,
+  DollarSign,
+  Sun,
+  Moon,
   Settings,
-  AccountCircle,
-  Logout,
-  Notifications
-} from '@mui/icons-material';
+  User,
+  LogOut,
+  Bell
+} from 'lucide-react';
 import { RootState } from '../store';
 import { toggleDarkMode, toggleSidebar } from '../store/slices/uiSlice';
 
@@ -49,24 +43,20 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const drawerWidth = 280;
-
 const navigationItems = [
-  { path: '/', label: 'Dashboard', icon: DashboardIcon, color: '#60a5fa' },
-  { path: '/unit-purchase', label: 'Unit Purchase', icon: MonetizationOn, color: '#10b981' },
-  { path: '/admin/approvals', label: 'Approvals', icon: CheckCircle, badge: 3, color: '#f59e0b' },
-  { path: '/shares-request', label: 'Shares Request', icon: TrendingUp, color: '#8b5cf6' },
-  { path: '/redemption', label: 'Unit Redemption', icon: TrendingDown, color: '#ef4444' },
-  { path: '/transfer', label: 'Unit Transfer', icon: SwapHoriz, color: '#06b6d4' },
-  { path: '/statements', label: 'Statements', icon: Description, color: '#84cc16' },
-  { path: '/transactions', label: 'Bank Transactions', icon: AccountBalance, color: '#f97316' },
-  { path: '/simulation', label: 'Property Simulation', icon: Business, color: '#ec4899' },
-  { path: '/investors', label: 'Investors', icon: People, color: '#6366f1' },
+  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/unit-purchase', label: 'Unit Purchase', icon: DollarSign },
+  { path: '/admin/approvals', label: 'Approvals', icon: CheckCircle, badge: true },
+  { path: '/shares-request', label: 'Shares Request', icon: TrendingUp },
+  { path: '/redemption', label: 'Unit Redemption', icon: TrendingDown },
+  { path: '/transfer', label: 'Unit Transfer', icon: ArrowLeftRight },
+  { path: '/statements', label: 'Statements', icon: FileText },
+  { path: '/transactions', label: 'Bank Transactions', icon: Landmark },
+  { path: '/simulation', label: 'Property Simulation', icon: Building2 },
+  { path: '/investors', label: 'Investors', icon: Users },
 ];
 
 const Layout = ({ children }: LayoutProps) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
   const dispatch = useDispatch();
   
@@ -75,349 +65,191 @@ const Layout = ({ children }: LayoutProps) => {
     state.unitTrust.purchaseRequests.filter(r => r.status === 'pending').length
   );
   
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    if (isMobile) {
-      setMobileOpen(!mobileOpen);
-    } else {
-      dispatch(toggleSidebar());
-    }
-  };
-
-  const handleProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleCloseProfileMenu = () => {
-    setAnchorEl(null);
+    dispatch(toggleSidebar());
   };
 
   const handleThemeToggle = () => {
     dispatch(toggleDarkMode());
   };
 
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ 
-        p: 3, 
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        background: theme.palette.mode === 'dark' 
-          ? 'linear-gradient(135deg, #111827 0%, #1f2937 100%)'
-          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: theme.palette.mode === 'dark' 
-                ? '0 4px 20px rgba(96, 165, 250, 0.3)'
-                : '0 4px 20px rgba(59, 130, 246, 0.2)'
-            }}
-          >
-            <Business sx={{ color: 'white', fontSize: 24 }} />
-          </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1 }}>
-              TrustWise
-            </Typography>
-            <Typography variant="caption" sx={{ 
-              color: 'text.secondary',
-              fontWeight: 500,
-              opacity: 0.8
-            }}>
-              Capital Management
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+  const SidebarContent = () => (
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      <div className="border-b p-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-lg">
+            <Building2 className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">TrustWise</h2>
+            <p className="text-sm text-muted-foreground">Capital Management</p>
+          </div>
+        </div>
+      </div>
 
-      <Box sx={{ px: 2, py: 2 }}>
-        <Typography variant="caption" sx={{ 
-          fontWeight: 600, 
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          color: 'text.secondary',
-          px: 1
-        }}>
+      {/* Market Overview */}
+      <div className="border-b p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Market Overview
-        </Typography>
-        <Box sx={{ mt: 1, px: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-            <Typography variant="body2">NAV Total</Typography>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: '#10b981' }}>
-              $2.45M
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="body2">24h Change</Typography>
-            <Chip 
-              label="+2.34%" 
-              size="small" 
-              sx={{ 
-                backgroundColor: '#10b981' + '20',
-                color: '#10b981',
-                fontSize: '0.7rem',
-                height: 20,
-                fontWeight: 600
-              }} 
-            />
-          </Box>
-        </Box>
-      </Box>
+        </p>
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <span className="text-sm">NAV Total</span>
+            <span className="text-sm font-semibold text-success">$2.45M</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-sm">24h Change</span>
+            <Badge variant="secondary" className="bg-success/20 text-success">
+              +2.34%
+            </Badge>
+          </div>
+        </div>
+      </div>
 
-      <Divider />
-
-      <Box sx={{ flexGrow: 1, px: 1, py: 1 }}>
-        <List sx={{ py: 0 }}>
+      {/* Navigation */}
+      <div className="flex-1 p-2">
+        <nav className="space-y-1">
           {navigationItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
             
             return (
-              <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  onClick={() => isMobile && setMobileOpen(false)}
-                  sx={{
-                    borderRadius: 2,
-                    mx: 1,
-                    px: 2,
-                    py: 1,
-                    minHeight: 44,
-                    backgroundColor: isActive 
-                      ? (theme.palette.mode === 'dark' ? 'rgba(96, 165, 250, 0.15)' : 'rgba(59, 130, 246, 0.1)')
-                      : 'transparent',
-                    border: isActive ? '1px solid rgba(96, 165, 250, 0.3)' : '1px solid transparent',
-                    '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(96, 165, 250, 0.08)' 
-                        : 'rgba(59, 130, 246, 0.05)',
-                    },
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::before': isActive ? {
-                      content: '""',
-                      position: 'absolute',
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: 3,
-                      background: 'linear-gradient(180deg, #60a5fa, #3b82f6)',
-                      borderRadius: '0 2px 2px 0'
-                    } : {}
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    <Icon 
-                      sx={{ 
-                        fontSize: 20,
-                        color: isActive ? '#60a5fa' : item.color,
-                        filter: isActive ? 'drop-shadow(0 0 6px rgba(96, 165, 250, 0.4))' : 'none'
-                      }} 
-                    />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontSize: '0.875rem',
-                      fontWeight: isActive ? 600 : 500,
-                      color: isActive ? 'primary.main' : 'text.primary'
-                    }}
-                  />
-                  {item.badge && (
-                    <Chip 
-                      label={item.path === '/admin/approvals' ? pendingRequests : item.badge}
-                      size="small"
-                      sx={{ 
-                        backgroundColor: '#ef4444',
-                        color: 'white',
-                        fontSize: '0.7rem',
-                        height: 20,
-                        minWidth: 20,
-                        fontWeight: 600,
-                        animation: pendingRequests > 0 ? 'pulse 2s infinite' : 'none',
-                        '@keyframes pulse': {
-                          '0%, 100%': { opacity: 1 },
-                          '50%': { opacity: 0.7 }
-                        }
-                      }}
-                    />
-                  )}
-                </ListItemButton>
-              </ListItem>
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                  isActive 
+                    ? "bg-primary/10 text-primary font-medium border border-primary/20" 
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="flex-1">{item.label}</span>
+                {item.badge && (
+                  <Badge 
+                    variant="destructive" 
+                    className="h-5 min-w-5 px-1 text-xs animate-pulse"
+                  >
+                    {item.path === '/admin/approvals' ? pendingRequests : ''}
+                  </Badge>
+                )}
+              </Link>
             );
           })}
-        </List>
-      </Box>
+        </nav>
+      </div>
 
-      <Divider />
+      <Separator />
 
-      <Box sx={{ p: 2 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 2,
-          p: 2,
-          borderRadius: 2,
-          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(96, 165, 250, 0.05)',
-          border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(96, 165, 250, 0.2)' : 'rgba(59, 130, 246, 0.1)'}`
-        }}>
-          <Avatar sx={{ 
-            width: 32, 
-            height: 32,
-            background: 'linear-gradient(135deg, #60a5fa, #3b82f6)'
-          }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-              AD
-            </Typography>
+      {/* User Profile */}
+      <div className="p-4">
+        <div className="flex items-center gap-3 rounded-lg border bg-card/50 p-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground">AD</AvatarFallback>
           </Avatar>
-          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.8rem' }}>
-              Admin User
-            </Typography>
-            <Typography variant="caption" sx={{ 
-              color: 'text.secondary',
-              display: 'block',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>
-              admin@trustwise.com
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-    </Box>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">Admin User</p>
+            <p className="text-xs text-muted-foreground truncate">admin@trustwise.com</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <AppBar
-        position="fixed"
-        elevation={0}
-        sx={{
-          zIndex: theme.zIndex.drawer + 1,
-          backgroundColor: theme.palette.background.paper,
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          backdropFilter: 'blur(20px)',
-          background: theme.palette.mode === 'dark'
-            ? 'rgba(17, 24, 39, 0.8)'
-            : 'rgba(255, 255, 255, 0.8)'
-        }}
+    <div className="flex min-h-screen bg-background">
+      {/* Desktop Sidebar */}
+      <aside 
+        className={cn(
+          "hidden md:flex w-80 border-r bg-background transition-all duration-300",
+          !sidebarOpen && "w-0 overflow-hidden"
+        )}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, color: 'text.primary' }}
-          >
-            <MenuIcon />
-          </IconButton>
+        <SidebarContent />
+      </aside>
 
-          <Typography variant="h6" noWrap component="div" sx={{ 
-            flexGrow: 1, 
-            fontWeight: 600,
-            color: 'text.primary'
-          }}>
-            {navigationItems.find(item => item.path === location.pathname)?.label || 'TrustWise'}
-          </Typography>
+      {/* Mobile Sidebar */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-80 p-0">
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton sx={{ color: 'text.primary' }}>
-              <Badge badgeContent={notifications.length} color="error">
-                <Notifications />
-              </Badge>
-            </IconButton>
-
-            <IconButton onClick={handleThemeToggle} sx={{ color: 'text.primary' }}>
-              {darkMode ? <Brightness7 /> : <Brightness4 />}
-            </IconButton>
-
-            <IconButton
-              onClick={handleProfileMenu}
-              sx={{ color: 'text.primary' }}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
+          <div className="flex h-16 items-center px-4 gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileOpen(true)}
+              className="md:hidden"
             >
-              <AccountCircle />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseProfileMenu}
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDrawerToggle}
+              className="hidden md:flex"
             >
-              <MenuItem onClick={handleCloseProfileMenu}>
-                <Settings sx={{ mr: 2 }} />
-                Settings
-              </MenuItem>
-              <MenuItem onClick={handleCloseProfileMenu}>
-                <Logout sx={{ mr: 2 }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Toolbar>
-      </AppBar>
+              <Menu className="h-5 w-5" />
+            </Button>
 
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth }
-          }}
-        >
-          {drawer}
-        </Drawer>
+            <h1 className="flex-1 text-lg font-semibold">
+              {navigationItems.find(item => item.path === location.pathname)?.label || 'TrustWise'}
+            </h1>
 
-        <Drawer
-          variant="persistent"
-          open={sidebarOpen}
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth,
-              transition: 'width 0.3s ease'
-            }
-          }}
-        >
-          {drawer}
-        </Drawer>
-      </Box>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon">
+                <Badge 
+                  content={notifications.length > 0 ? notifications.length.toString() : undefined}
+                  className="relative"
+                >
+                  <Bell className="h-5 w-5" />
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-destructive rounded-full"></span>
+                  )}
+                </Badge>
+              </Button>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          width: { md: `calc(100% - ${sidebarOpen ? drawerWidth : 0}px)` },
-          ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
-          transition: 'margin 0.3s ease, width 0.3s ease',
-          minHeight: '100vh',
-          backgroundColor: theme.palette.background.default
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ p: 3 }}>
+              <Button variant="ghost" size="icon" onClick={handleThemeToggle}>
+                {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 p-6">
           {children}
-        </Box>
-      </Box>
-    </Box>
+        </main>
+      </div>
+    </div>
   );
 };
 
