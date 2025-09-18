@@ -1,16 +1,25 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { useDispatch } from 'react-redux';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Chip,
+  Tabs,
+  Tab,
+  Box,
+  Divider
+} from '@mui/material';
+import { CheckCircle, Cancel, AccessTime } from '@mui/icons-material';
 import { mockPurchaseRequests, mockSharesRequests } from '@/lib/mockData';
-import { CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
+import { addNotification } from '@/store/slices/uiSlice';
 
 export default function AdminApprovals() {
   const [purchaseRequests, setPurchaseRequests] = useState(mockPurchaseRequests);
   const [sharesRequests, setSharesRequests] = useState(mockSharesRequests);
-  const { toast } = useToast();
+  const [tabValue, setTabValue] = useState(0);
+  const dispatch = useDispatch();
 
   const handleApprove = (id: string, type: 'purchase' | 'shares') => {
     const timestamp = new Date().toISOString();
@@ -33,10 +42,10 @@ export default function AdminApprovals() {
       );
     }
 
-    toast({
-      title: 'Request Approved',
-      description: `${type === 'purchase' ? 'Unit purchase' : 'Shares purchase'} request has been approved.`,
-    });
+    dispatch(addNotification({
+      type: 'success',
+      message: `${type === 'purchase' ? 'Unit purchase' : 'Shares purchase'} request has been approved.`
+    }));
   };
 
   const handleReject = (id: string, type: 'purchase' | 'shares') => {
@@ -60,21 +69,20 @@ export default function AdminApprovals() {
       );
     }
 
-    toast({
-      title: 'Request Rejected',
-      description: `${type === 'purchase' ? 'Unit purchase' : 'Shares purchase'} request has been rejected.`,
-      variant: 'destructive'
-    });
+    dispatch(addNotification({
+      type: 'error',
+      message: `${type === 'purchase' ? 'Unit purchase' : 'Shares purchase'} request has been rejected.`
+    }));
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusChip = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-success text-success-foreground">Approved</Badge>;
+        return <Chip label="Approved" size="small" sx={{ backgroundColor: '#10b981', color: 'white' }} />;
       case 'rejected':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Chip label="Rejected" size="small" sx={{ backgroundColor: '#ef4444', color: 'white' }} />;
       default:
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Chip label="Pending" size="small" sx={{ backgroundColor: '#f59e0b', color: 'white' }} />;
     }
   };
 
@@ -82,202 +90,244 @@ export default function AdminApprovals() {
   const pendingShares = sharesRequests.filter(req => req.status === 'pending');
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Approvals</h1>
-        <p className="text-muted-foreground">
+    <Box>
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+          Admin Approvals
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
           Review and approve purchase requests from investors
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending Unit Purchases</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingPurchases.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1, color: 'text.secondary' }}>
+              Pending Unit Purchases
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {pendingPurchases.length}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
               Awaiting approval
-            </p>
+            </Typography>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending Shares Purchases</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingShares.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1, color: 'text.secondary' }}>
+              Pending Shares Purchases
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {pendingShares.length}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
               Awaiting approval
-            </p>
+            </Typography>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Pending</CardTitle>
-          </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingPurchases.length + pendingShares.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <Typography variant="h6" sx={{ fontSize: '0.875rem', fontWeight: 500, mb: 1, color: 'text.secondary' }}>
+              Total Pending
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {pendingPurchases.length + pendingShares.length}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
               Requires attention
-            </p>
+            </Typography>
           </CardContent>
         </Card>
-      </div>
+      </Box>
 
-      <Tabs defaultValue="unit-purchases" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="unit-purchases">
-            Unit Purchase Requests
-            {pendingPurchases.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {pendingPurchases.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="shares-purchases">
-            Shares Purchase Requests
-            {pendingShares.length > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {pendingShares.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="unit-purchases" className="space-y-4">
-          {purchaseRequests.map((request) => (
-            <Card key={request.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{request.investorName}</CardTitle>
-                    <CardDescription>
-                      Submitted {new Date(request.submittedAt).toLocaleDateString()}
-                    </CardDescription>
-                  </div>
-                  {getStatusBadge(request.status)}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Unit Class:</span>
-                      <span className="font-medium">{request.unitClassName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Investment Amount:</span>
-                      <span className="font-medium">${request.requestedAmount.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Estimated Units:</span>
-                      <span className="font-medium">{request.requestedUnits.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  
-                  {request.status === 'pending' && (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() => handleApprove(request.id, 'purchase')}
-                        className="flex-1"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleReject(request.id, 'purchase')}
-                        className="flex-1"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Reject
-                      </Button>
-                    </div>
+      <Card>
+        <Box>
+          <Tabs 
+            value={tabValue} 
+            onChange={(_, value) => setTabValue(value)}
+            sx={{ px: 2, pt: 2 }}
+          >
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Unit Purchase Requests
+                  {pendingPurchases.length > 0 && (
+                    <Chip 
+                      label={pendingPurchases.length} 
+                      size="small" 
+                      sx={{ backgroundColor: '#f59e0b', color: 'white', minWidth: 20, height: 20 }}
+                    />
                   )}
-
-                  {request.status !== 'pending' && request.approvedAt && (
-                    <div className="text-sm text-muted-foreground">
-                      {request.status === 'approved' ? 'Approved' : 'Rejected'} by {request.approvedBy} on{' '}
-                      {new Date(request.approvedAt).toLocaleDateString()}
-                    </div>
+                </Box>
+              } 
+            />
+            <Tab 
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  Shares Purchase Requests
+                  {pendingShares.length > 0 && (
+                    <Chip 
+                      label={pendingShares.length} 
+                      size="small" 
+                      sx={{ backgroundColor: '#f59e0b', color: 'white', minWidth: 20, height: 20 }}
+                    />
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
+                </Box>
+              } 
+            />
+          </Tabs>
 
-        <TabsContent value="shares-purchases" className="space-y-4">
-          {sharesRequests.map((request) => (
-            <Card key={request.id}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{request.investorName}</CardTitle>
-                    <CardDescription>
-                      Submitted {new Date(request.submittedAt).toLocaleDateString()}
-                    </CardDescription>
-                  </div>
-                  {getStatusBadge(request.status)}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Symbol:</span>
-                      <span className="font-medium">{request.symbol}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Quantity:</span>
-                      <span className="font-medium">{request.quantity}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Estimated Price:</span>
-                      <span className="font-medium">${request.estimatedPrice}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Total Amount:</span>
-                      <span className="font-medium">${request.totalAmount.toLocaleString()}</span>
-                    </div>
-                  </div>
-                  
-                  {request.status === 'pending' && (
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() => handleApprove(request.id, 'shares')}
-                        className="flex-1"
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleReject(request.id, 'shares')}
-                        className="flex-1"
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Reject
-                      </Button>
-                    </div>
-                  )}
+          {tabValue === 0 && (
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {purchaseRequests.map((request) => (
+                  <Card key={request.id} variant="outlined">
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            {request.investorName}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Submitted {new Date(request.submittedAt).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                        {getStatusChip(request.status)}
+                      </Box>
 
-                  {request.status !== 'pending' && request.approvedAt && (
-                    <div className="text-sm text-muted-foreground">
-                      {request.status === 'approved' ? 'Approved' : 'Rejected'} by {request.approvedBy} on{' '}
-                      {new Date(request.approvedAt).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-      </Tabs>
-    </div>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Unit Class:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{request.unitClassName}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Investment Amount:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>${request.requestedAmount.toLocaleString()}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Estimated Units:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{request.requestedUnits.toLocaleString()}</Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Box>
+                          {request.status === 'pending' ? (
+                            <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleApprove(request.id, 'purchase')}
+                                startIcon={<CheckCircle />}
+                                fullWidth
+                                sx={{ backgroundColor: '#10b981', '&:hover': { backgroundColor: '#059669' } }}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleReject(request.id, 'purchase')}
+                                startIcon={<Cancel />}
+                                fullWidth
+                                sx={{ backgroundColor: '#ef4444', '&:hover': { backgroundColor: '#dc2626' } }}
+                              >
+                                Reject
+                              </Button>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              {request.status === 'approved' ? 'Approved' : 'Rejected'} by {request.approvedBy} on{' '}
+                              {request.approvedAt && new Date(request.approvedAt).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          {tabValue === 1 && (
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {sharesRequests.map((request) => (
+                  <Card key={request.id} variant="outlined">
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                            {request.investorName}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Submitted {new Date(request.submittedAt).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                        {getStatusChip(request.status)}
+                      </Box>
+
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Symbol:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{request.symbol}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Quantity:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{request.quantity}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Estimated Price:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>${request.estimatedPrice}</Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" color="text.secondary">Total Amount:</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 500 }}>${request.totalAmount.toLocaleString()}</Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Box>
+                          {request.status === 'pending' ? (
+                            <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleApprove(request.id, 'shares')}
+                                startIcon={<CheckCircle />}
+                                fullWidth
+                                sx={{ backgroundColor: '#10b981', '&:hover': { backgroundColor: '#059669' } }}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                onClick={() => handleReject(request.id, 'shares')}
+                                startIcon={<Cancel />}
+                                fullWidth
+                                sx={{ backgroundColor: '#ef4444', '&:hover': { backgroundColor: '#dc2626' } }}
+                              >
+                                Reject
+                              </Button>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              {request.status === 'approved' ? 'Approved' : 'Rejected'} by {request.approvedBy} on{' '}
+                              {request.approvedAt && new Date(request.approvedAt).toLocaleDateString()}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Card>
+    </Box>
   );
 }
